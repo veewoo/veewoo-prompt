@@ -1,103 +1,151 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { getPrompts, getAllTags } from '@/app/actions/promptActions';
+import { Prompt, Tag } from '@/types';
+import PromptCard from '@/app/components/PromptCard';
+import Link from 'next/link';
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+export default function PromptsPage() {
+  const { user, signInWithGoogle, signOut, loading: authLoading } = useAuth();
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [loadingPrompts, setLoadingPrompts] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadData() {
+      if (user) {
+        setLoadingPrompts(true);
+        setError(null);
+        try {
+          const [userPrompts, allTags] = await Promise.all([
+            getPrompts(),
+            getAllTags(),
+          ]);
+          setPrompts(userPrompts);
+          setTags(allTags);
+        } catch (err) {
+          console.error('Error loading data:', err);
+          if (err instanceof Error) {
+            setError(err.message || 'Failed to load data.');
+          } else {
+            setError('An unknown error occurred while loading data.');
+          }
+        }
+        setLoadingPrompts(false);
+      }
+    }
+    loadData();
+  }, [user]);
+
+  const handleTagToggle = (tagId: string) => {
+    setSelectedTags(prev =>
+      prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+    );
+  };
+
+  const filteredPrompts = prompts.filter(prompt => {
+    if (selectedTags.length === 0) return true;
+    return prompt.tags?.some(tag => selectedTags.includes(tag.id)) ?? false;
+  });
+
+  if (authLoading) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">
+        <div className="flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
+          <p className="ml-3 text-lg">Loading authentication...</p>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
+      <div className="container mx-auto">
+        <header className="flex justify-between items-center mb-10">
+          <h1 className="text-4xl font-bold text-sky-400">Your Prompts</h1>
+          <div className="flex items-center gap-4">
+            {!user && (
+              <button
+                onClick={signInWithGoogle}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out"
+              >
+                Sign in with Google
+              </button>
+            )}
+            {user && (
+              <>
+                <span className="text-gray-300">Welcome, {user.email}!</span>
+                <Link href="/create-prompt" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out">
+                  Create New Prompt
+                </Link>
+                <button
+                  onClick={signOut}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out"
+                >
+                  Sign Out
+                </button>
+              </>
+            )}
+          </div>
+        </header>
+
+        {!user && (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-400">Please sign in to view your prompts.</p>
+          </div>
+        )}
+
+        {user && (
+          <>
+            {error && <p className="text-red-400 bg-red-900 p-3 rounded-md my-4">Error: {error}</p>}
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-semibold text-sky-500 mb-4">Filter by Tags</h2>
+              {tags.length === 0 && !loadingPrompts && <p className="text-gray-500">No tags available.</p>}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {tags.map(tag => (
+                  <button
+                    key={tag.id}
+                    onClick={() => handleTagToggle(tag.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                      ${selectedTags.includes(tag.id)
+                        ? 'bg-sky-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'}`}
+                  >
+                    {tag.name}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              {loadingPrompts && (
+                <div className="flex justify-center items-center py-10">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-sky-500"></div>
+                  <p className="ml-3 text-lg text-gray-400">Loading prompts...</p>
+                </div>
+              )}
+              {!loadingPrompts && filteredPrompts.length === 0 && (
+                <p className="text-gray-500 text-center py-10">
+                  {selectedTags.length > 0 ? 'No prompts match the selected tags.' : 'You haven\'t created any prompts yet. Click \"Create New Prompt\" to get started!'}
+                </p>
+              )}
+              {!loadingPrompts && filteredPrompts.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredPrompts.map(prompt => (
+                    <PromptCard key={prompt.id} prompt={prompt} />
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+      </div>
+    </main>
   );
 }
