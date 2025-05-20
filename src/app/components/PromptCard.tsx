@@ -56,9 +56,6 @@ export default function PromptCard({ prompt }: PromptCardProps) {
 
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 ease-in-out">
-      <h3 className="text-2xl font-semibold mb-3 text-sky-400">
-        {prompt.title}
-      </h3>
       <p className="text-gray-300 whitespace-pre-wrap mb-4">
         {getProcessedPromptText()}
       </p>
