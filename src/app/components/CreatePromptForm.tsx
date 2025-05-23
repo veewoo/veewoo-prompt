@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import { createPrompt, updatePrompt } from '@/app/actions/promptActions';
+import { useCreatePrompt, useUpdatePrompt } from '@/hooks/usePrompts';
 import type { Prompt, PlaceholderVariable } from '@/types';
 import { useRouter } from 'next/navigation'; // Import useRouter
 
@@ -14,12 +14,15 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
   const [promptText, setPromptText] = useState('');
   const [tagNames, setTagNames] = useState(''); // Comma-separated tag names
   const [placeholderVariables, setPlaceholderVariables] = useState<PlaceholderVariable[]>([]); // New state for placeholder variables
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter(); // Initialize useRouter
 
+  const createPromptMutation = useCreatePrompt();
+  const updatePromptMutation = useUpdatePrompt();
+
   const isEditMode = !!promptToEdit;
+  const isLoading = createPromptMutation.isPending || updatePromptMutation.isPending;
+  const error = createPromptMutation.error || updatePromptMutation.error;
 
   useEffect(() => {
     if (isEditMode && promptToEdit) {
@@ -36,6 +39,14 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
       setPlaceholderVariables([]); // Reset placeholder variables
     }
   }, [isEditMode, promptToEdit]);
+
+  // Clear success message when mutations succeed
+  useEffect(() => {
+    if (createPromptMutation.isSuccess || updatePromptMutation.isSuccess) {
+      setSuccessMessage(`Prompt ${isEditMode ? 'updated' : 'created'} successfully! Redirecting...`);
+      setTimeout(() => router.push('/'), 2000);
+    }
+  }, [createPromptMutation.isSuccess, updatePromptMutation.isSuccess, isEditMode, router]);
 
   // Functions to manage placeholder variables
   const addPlaceholderVariable = () => {
@@ -87,14 +98,10 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
     setSuccessMessage(null);
 
     if (!title.trim() || !promptText.trim()) {
-      setError('Title and prompt text cannot be empty.');
-      setIsLoading(false);
-      return;
+      return; // Form validation will handle this
     }
 
     try {
@@ -103,34 +110,29 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
       const promptData = { title, prompt_text: promptText, tagNames: tagsArray, placeholder_variables: placeholderVariables };
 
       if (isEditMode && promptToEdit) {
-        await updatePrompt({ id: promptToEdit.id, ...promptData });
-        setSuccessMessage('Prompt updated successfully! Redirecting...');
-        setTimeout(() => router.push('/'), 2000);
+        await updatePromptMutation.mutateAsync({ id: promptToEdit.id, ...promptData });
       } else {
-        await createPrompt(promptData);
+        await createPromptMutation.mutateAsync(promptData);
+        // Reset form after successful creation
         setTitle('');
         setPromptText('');
         setTagNames('');
-        setPlaceholderVariables([]); // Reset placeholder variables after creation
-        setSuccessMessage('Prompt created successfully! Redirecting...');
-        setTimeout(() => router.push('/'), 2000);
+        setPlaceholderVariables([]);
       }
-      // The page will be revalidated by the server action, refreshing the prompt list
     } catch (err) {
+      // Error is handled by React Query and displayed via the error state
       console.error(isEditMode ? 'Failed to update prompt:' : 'Failed to create prompt:', err);
-      if (err instanceof Error) {
-        setError(err.message || `Failed to ${isEditMode ? 'update' : 'create'} prompt. Please try again.`);
-      } else {
-        setError(`An unknown error occurred while ${isEditMode ? 'updating' : 'creating'} the prompt.`);
-      }
     }
-    setIsLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="mb-12 p-6 bg-gray-800 rounded-lg shadow-xl space-y-6">
       <h2 className="text-3xl font-semibold text-sky-400 mb-6">{isEditMode ? 'Edit Prompt' : 'Create New Prompt'}</h2>
-      {error && <p className="text-red-400 bg-red-900 p-3 rounded-md">Error: {error}</p>}
+      {error && (
+        <p className="text-red-400 bg-red-900 p-3 rounded-md">
+          Error: {error instanceof Error ? error.message : 'An unknown error occurred'}
+        </p>
+      )}
       {successMessage && <p className="text-green-400 bg-green-900 p-3 rounded-md">{successMessage}</p>}
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">Title</label>

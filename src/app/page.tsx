@@ -1,45 +1,15 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState } from 'react';
-import { getPrompts, getAllTags } from '@/app/actions/promptActions';
-import { Prompt, Tag } from '@/types';
+import { useState } from 'react';
+import { useInitialData } from '@/hooks/usePrompts';
 import PromptCard from '@/app/components/PromptCard';
 import Link from 'next/link';
 
 export default function PromptsPage() {
   const { user, signInWithGoogle, signOut, loading: authLoading } = useAuth();
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
+  const { prompts, tags, isLoading: loadingData, error } = useInitialData();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [loadingPrompts, setLoadingPrompts] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadData() {
-      if (user) {
-        setLoadingPrompts(true);
-        setError(null);
-        try {
-          const [userPrompts, allTags] = await Promise.all([
-            getPrompts(),
-            getAllTags(),
-          ]);
-          setPrompts(userPrompts);
-          setTags(allTags);
-        } catch (err) {
-          console.error('Error loading data:', err);
-          if (err instanceof Error) {
-            setError(err.message || 'Failed to load data.');
-          } else {
-            setError('An unknown error occurred while loading data.');
-          }
-        }
-        setLoadingPrompts(false);
-      }
-    }
-    loadData();
-  }, [user]);
 
   const handleTagToggle = (tagId: string) => {
     setSelectedTags(prev =>
@@ -102,11 +72,15 @@ export default function PromptsPage() {
 
         {user && (
           <>
-            {error && <p className="text-red-400 bg-red-900 p-3 rounded-md my-4">Error: {error}</p>}
+            {error && (
+              <p className="text-red-400 bg-red-900 p-3 rounded-md my-4">
+                Error: {error instanceof Error ? error.message : 'An unknown error occurred'}
+              </p>
+            )}
 
             <section className="mb-12">
               <h2 className="text-2xl font-semibold text-sky-500 mb-4">Filter by Tags</h2>
-              {tags.length === 0 && !loadingPrompts && <p className="text-gray-500">No tags available.</p>}
+              {tags.length === 0 && !loadingData && <p className="text-gray-500">No tags available.</p>}
               <div className="flex flex-wrap gap-2 mb-6">
                 {tags.map(tag => (
                   <button
@@ -124,18 +98,18 @@ export default function PromptsPage() {
             </section>
 
             <section>
-              {loadingPrompts && (
+              {loadingData && (
                 <div className="flex justify-center items-center py-10">
                   <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-sky-500"></div>
                   <p className="ml-3 text-lg text-gray-400">Loading prompts...</p>
                 </div>
               )}
-              {!loadingPrompts && filteredPrompts.length === 0 && (
+              {!loadingData && filteredPrompts.length === 0 && (
                 <p className="text-gray-500 text-center py-10">
                   {selectedTags.length > 0 ? 'No prompts match the selected tags.' : 'You haven\'t created any prompts yet. Click \"Create New Prompt\" to get started!'}
                 </p>
               )}
-              {!loadingPrompts && filteredPrompts.length > 0 && (
+              {!loadingData && filteredPrompts.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredPrompts.map(prompt => (
                     <PromptCard key={prompt.id} prompt={prompt} />
