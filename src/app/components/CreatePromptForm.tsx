@@ -152,7 +152,7 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
           onChange={(e) => setPromptText(e.target.value)}
           rows={6}
           className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
-          placeholder="Enter your prompt content here. Use {placeholder_name} for variables."
+          placeholder="Enter your prompt content here. Use {{placeholder_name}} for variables."
           required
         />
       </div>
