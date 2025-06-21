@@ -29,6 +29,19 @@ export default function PromptCard({ prompt }: PromptCardProps) {
     setVariableValues((prev) => ({ ...prev, [variableName]: value }));
   };
 
+  const getProcessedPromptTextToDisplay = () => {
+    let text = prompt.prompt_text;
+    if (prompt.placeholder_variables) {
+      prompt.placeholder_variables.forEach((variable) => {
+        const regex = new RegExp(`\\{\\{${variable.name}\\}\\}`, "g");
+        const value = variableValues[variable.name];
+        // If variable has a value, replace with the value; otherwise, keep the placeholder pattern
+        text = text.replace(regex, value || `{{${variable.name}}}`);
+      });
+    }
+    return text;
+  };
+
   const getProcessedPromptText = () => {
     let text = prompt.prompt_text;
     if (prompt.placeholder_variables) {
@@ -57,7 +70,7 @@ export default function PromptCard({ prompt }: PromptCardProps) {
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 ease-in-out">
       <p className="text-gray-300 whitespace-pre-wrap mb-4">
-        {getProcessedPromptText()}
+        {getProcessedPromptTextToDisplay()}
       </p>
 
       {/* Placeholder Variables Inputs */}
