@@ -14,6 +14,7 @@ export interface PlaceholderVariable {
   name: string;
   type: 'text' | 'option';
   options?: string[]; // For 'option' type, array of option values
+  order_index?: number; // Order of the variable in the list
 }
 
 // Corresponds to the 'prompts' table

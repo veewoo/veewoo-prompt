@@ -38,9 +38,10 @@ type DbPlaceholderVariable = Database['public']['Tables']['placeholder_variables
 type DbPlaceholderVariableOption = Database['public']['Tables']['placeholder_variable_options']['Row'];
 
 // Helper type for the shape of placeholder variable data returned by Supabase queries
-// (including joined relations and assuming default_value column exists)
+// (including joined relations and assuming order_index column exists)
 type PlaceholderVariableFromSupabase = DbPlaceholderVariable & {
   placeholder_variable_options: DbPlaceholderVariableOption[];
+  order_index: number | null;
 };
 
 // Fetch prompts for the current user using the client client
@@ -66,15 +67,18 @@ export async function getPrompts(): Promise<Prompt[]> {
   return data.map(p => ({
     ...p,
     tags: p.prompt_tags.map((pt: PromptTagFromQuery) => pt.tags).filter(Boolean) as Tag[],
-    placeholder_variables: p.placeholder_variables.map(pv_raw => {
-      const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
-      return {
-        id: pv.id,
-        name: pv.name,
-        type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
-        options: pv.placeholder_variable_options.map(opt => opt.option_value),
-      };
-    }) as PlaceholderVariable[],
+    placeholder_variables: p.placeholder_variables
+      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) // Sort by order_index
+      .map(pv_raw => {
+        const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
+        return {
+          id: pv.id,
+          name: pv.name,
+          type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
+          options: pv.placeholder_variable_options.map(opt => opt.option_value),
+          order_index: pv.order_index || 0,
+        };
+      }) as PlaceholderVariable[],
   })) as Prompt[];
 }
 
@@ -107,15 +111,18 @@ export async function getPromptById(promptId: string): Promise<Prompt | null> {
   return {
     ...data,
     tags: data.prompt_tags.map((pt: PromptTagFromQuery) => pt.tags).filter(Boolean) as Tag[],
-    placeholder_variables: data.placeholder_variables.map(pv_raw => {
-      const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
-      return {
-        id: pv.id,
-        name: pv.name,
-        type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
-        options: pv.placeholder_variable_options.map(opt => opt.option_value),
-      };
-    }) as PlaceholderVariable[],
+    placeholder_variables: data.placeholder_variables
+      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) // Sort by order_index
+      .map(pv_raw => {
+        const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
+        return {
+          id: pv.id,
+          name: pv.name,
+          type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
+          options: pv.placeholder_variable_options.map(opt => opt.option_value),
+          order_index: pv.order_index || 0,
+        };
+      }) as PlaceholderVariable[],
   } as Prompt;
 }
 
@@ -192,13 +199,15 @@ export async function createPrompt(args: CreatePromptArgs): Promise<Prompt> {
 
   // Handle Placeholder Variables
   if (args.placeholder_variables && args.placeholder_variables.length > 0) {
-    for (const pv of args.placeholder_variables) {
+    for (let i = 0; i < args.placeholder_variables.length; i++) {
+      const pv = args.placeholder_variables[i];
       const { data: pvData, error: pvError } = await supabase
         .from('placeholder_variables')
         .insert({
           prompt_id: promptData.id,
           name: pv.name,
           value_type: pv.type, // Map app 'type' to db 'value_type'
+          order_index: i, // Save the order index
           // options are stored in a separate table if type is 'option'
         })
         .select('id') // Select the id of the newly inserted placeholder variable
@@ -250,15 +259,18 @@ export async function createPrompt(args: CreatePromptArgs): Promise<Prompt> {
   return {
     ...finalPromptData,
     tags: finalPromptData.prompt_tags.map((pt: PromptTagFromQuery) => pt.tags).filter(Boolean) as Tag[],
-    placeholder_variables: finalPromptData.placeholder_variables.map(pv_raw => {
-      const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
-      return {
-        id: pv.id,
-        name: pv.name,
-        type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
-        options: pv.placeholder_variable_options.map(opt => opt.option_value),
-      };
-    }) as PlaceholderVariable[],
+    placeholder_variables: finalPromptData.placeholder_variables
+      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) // Sort by order_index
+      .map(pv_raw => {
+        const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
+        return {
+          id: pv.id,
+          name: pv.name,
+          type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
+          options: pv.placeholder_variable_options.map(opt => opt.option_value),
+          order_index: pv.order_index || 0,
+        };
+      }) as PlaceholderVariable[],
   } as Prompt;
 }
 
@@ -381,13 +393,15 @@ export async function updatePrompt(args: UpdatePromptArgs): Promise<Prompt> {
 
   // 2. Add new placeholder variables and their options (similar to createPrompt)
   if (args.placeholder_variables && args.placeholder_variables.length > 0) {
-    for (const pv of args.placeholder_variables) {
+    for (let i = 0; i < args.placeholder_variables.length; i++) {
+      const pv = args.placeholder_variables[i];
       const { data: pvData, error: pvError } = await supabase
         .from('placeholder_variables')
         .insert({
           prompt_id: args.id, // Use the existing prompt's ID
           name: pv.name,
           value_type: pv.type, // Map app 'type' to db 'value_type'
+          order_index: i, // Save the order index
         })
         .select('id')
         .single();
@@ -435,15 +449,18 @@ export async function updatePrompt(args: UpdatePromptArgs): Promise<Prompt> {
   return {
     ...finalPromptData,
     tags: finalPromptData.prompt_tags.map((pt: PromptTagFromQuery) => pt.tags).filter(Boolean) as Tag[],
-    placeholder_variables: finalPromptData.placeholder_variables.map(pv_raw => {
-      const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
-      return {
-        id: pv.id,
-        name: pv.name,
-        type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
-        options: pv.placeholder_variable_options.map(opt => opt.option_value),
-      };
-    }) as PlaceholderVariable[],
+    placeholder_variables: finalPromptData.placeholder_variables
+      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) // Sort by order_index
+      .map(pv_raw => {
+        const pv = pv_raw as PlaceholderVariableFromSupabase; // Use the specific helper type
+        return {
+          id: pv.id,
+          name: pv.name,
+          type: pv.value_type as 'text' | 'option', // Map db 'value_type' to app 'type'
+          options: pv.placeholder_variable_options.map(opt => opt.option_value),
+          order_index: pv.order_index || 0,
+        };
+      }) as PlaceholderVariable[],
   } as Prompt;
 }
 

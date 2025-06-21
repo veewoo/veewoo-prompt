@@ -69,6 +69,16 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
     setPlaceholderVariables(newVariables);
   };
 
+  const movePlaceholderVariable = (index: number, direction: 'up' | 'down') => {
+    const newVariables = [...placeholderVariables];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (targetIndex >= 0 && targetIndex < newVariables.length) {
+      [newVariables[index], newVariables[targetIndex]] = [newVariables[targetIndex], newVariables[index]];
+      setPlaceholderVariables(newVariables);
+    }
+  };
+
   const addOptionToVariable = (variableIndex: number) => {
     const newVariables = [...placeholderVariables];
     const variable = newVariables[variableIndex];
@@ -177,13 +187,33 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
           <div key={index} className="p-4 border border-gray-700 rounded-md space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-lg text-gray-300">Variable #{index + 1}</h4>
-              <button
-                type="button"
-                onClick={() => removePlaceholderVariable(index)}
-                className="text-red-500 hover:text-red-400 text-sm"
-              >
-                Remove
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => movePlaceholderVariable(index, 'up')}
+                  disabled={index === 0}
+                  className="text-gray-400 hover:text-gray-300 text-sm p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move up"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  onClick={() => movePlaceholderVariable(index, 'down')}
+                  disabled={index === placeholderVariables.length - 1}
+                  className="text-gray-400 hover:text-gray-300 text-sm p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move down"
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removePlaceholderVariable(index)}
+                  className="text-red-500 hover:text-red-400 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
             <div>
               <label htmlFor={`var-name-${index}`} className="block text-sm font-medium text-gray-400 mb-1">Name</label>

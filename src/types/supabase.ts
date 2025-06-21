@@ -44,6 +44,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          order_index: number | null
           prompt_id: string
           value_type: string
         }
@@ -52,6 +53,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          order_index?: number | null
           prompt_id: string
           value_type?: string
         }
@@ -60,6 +62,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          order_index?: number | null
           prompt_id?: string
           value_type?: string
         }
