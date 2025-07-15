@@ -67,6 +67,17 @@ export default function PromptCard({ prompt }: PromptCardProps) {
       });
   };
 
+  // Add handleReset function
+  const handleReset = () => {
+    if (prompt.placeholder_variables) {
+      const resetValues: Record<string, string> = {};
+      prompt.placeholder_variables.forEach((variable) => {
+        resetValues[variable.name] = "";
+      });
+      setVariableValues(resetValues);
+    }
+  };
+
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 ease-in-out">
       <p className="text-gray-300 whitespace-pre-wrap mb-4">
@@ -158,6 +169,15 @@ export default function PromptCard({ prompt }: PromptCardProps) {
         >
           {copied ? "Copied!" : "Copy"}
         </button>
+        {/* Add Reset button */}
+        {prompt.placeholder_variables && prompt.placeholder_variables.length > 0 && (
+          <button
+            onClick={handleReset}
+            className="text-sm bg-gray-500 hover:bg-gray-600 text-white py-1 px-3 rounded-md transition-colors"
+          >
+            Reset
+          </button>
+        )}
         <Link href={`/edit-prompt/${prompt.id}`} passHref>
           <button className="text-sm bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-md transition-colors">
             Edit
