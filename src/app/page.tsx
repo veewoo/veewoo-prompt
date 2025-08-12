@@ -39,9 +39,9 @@ export default function PromptsPage() {
   return (
     <main className="min-h-screen p-4 md:p-8">
       <div className="container mx-auto">
-        <header className="flex justify-between items-center mb-10">
+        <header className="flex flex-wrap justify-between items-center mb-10">
           <h1 className="text-4xl font-bold">Your Prompts</h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             {!user && (
               <Button onClick={signInWithGoogle}>Sign in with Google</Button>
             )}
