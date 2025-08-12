@@ -9,7 +9,7 @@ export default function CreatePromptPage() {
 
   if (authLoading) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">
+      <main className="flex min-h-screen flex-col items-center justify-center p-24">
         <div className="flex justify-center items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
           <p className="ml-3 text-lg">Loading authentication...</p>
@@ -20,10 +20,10 @@ export default function CreatePromptPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
+      <main className="min-h-screen p-4 md:p-8">
         <div className="container mx-auto text-center py-10">
-          <p className="text-xl text-gray-400 mb-4">Please sign in to create a new prompt.</p>
-          <Link href="/" className="text-sky-500 hover:text-sky-400">
+          <p className="text-xl mb-4">Please sign in to create a new prompt.</p>
+          <Link href="/" className="text-sm">
             Go to Sign In
           </Link>
         </div>
@@ -32,11 +32,11 @@ export default function CreatePromptPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="container mx-auto">
         <header className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-bold text-sky-400">Create New Prompt</h1>
-          <Link href="/" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out">
+          <h1 className="text-4xl font-bold">Create New Prompt</h1>
+          <Link href="/" className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out">
             View My Prompts
           </Link>
         </header>

@@ -34,7 +34,7 @@ export default function EditPromptPage() {
 
   if (authLoading) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">
+      <main className="flex min-h-screen flex-col items-center justify-center p-24">
         <div className="flex justify-center items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
           <p className="ml-3 text-lg">Loading authentication...</p>
@@ -48,13 +48,13 @@ export default function EditPromptPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="container mx-auto">
         <header className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-bold text-sky-400">Edit Prompt</h1>
+          <h1 className="text-4xl font-bold">Edit Prompt</h1>
           <Link 
             href="/" 
-            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out"
+            className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out"
           >
             ← Back to Prompts
           </Link>
@@ -63,18 +63,18 @@ export default function EditPromptPage() {
         {loadingPrompt && (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
-            <p className="ml-3 text-lg text-gray-400">Loading prompt...</p>
+            <p className="ml-3 text-lg">Loading prompt...</p>
           </div>
         )}
 
         {error && (
           <div className="text-center py-20">
-            <p className="text-red-400 text-xl mb-4">
+            <p className="text-xl mb-4">
               {error instanceof Error ? error.message : 'Failed to load prompt'}
             </p>
             <Link 
               href="/" 
-              className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
+              className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
             >
               Go Back Home
             </Link>
@@ -87,10 +87,10 @@ export default function EditPromptPage() {
 
         {!loadingPrompt && !error && promptToEdit && promptToEdit.user_id !== user.id && (
           <div className="text-center py-20">
-            <p className="text-red-400 text-xl mb-4">You are not authorized to edit this prompt.</p>
+            <p className="text-xl mb-4">You are not authorized to edit this prompt.</p>
             <Link 
               href="/" 
-              className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
+              className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
             >
               Go Back Home
             </Link>
@@ -99,10 +99,10 @@ export default function EditPromptPage() {
 
         {!loadingPrompt && !error && !promptToEdit && (
           <div className="text-center py-20">
-            <p className="text-red-400 text-xl mb-4">Prompt not found.</p>
+            <p className="text-xl mb-4">Prompt not found.</p>
             <Link 
               href="/" 
-              className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
+              className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
             >
               Go Back Home
             </Link>

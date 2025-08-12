@@ -3,6 +3,18 @@
 import { Prompt } from "@/types"; // Removed PlaceholderVariable import
 import React, { useState, useEffect } from "react"; // Import useState and useEffect
 import Link from "next/link"; // Import Link from next/link
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ClipboardPasteIcon } from "lucide-react";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -78,115 +90,118 @@ export default function PromptCard({ prompt }: PromptCardProps) {
     }
   };
 
-  return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 ease-in-out">
-      <p className="text-gray-300 whitespace-pre-wrap mb-4">
-        {getProcessedPromptTextToDisplay()}
-      </p>
+  function handlePaste(variableName: string): void {
+    navigator.clipboard.readText().then((text) => {
+      setVariableValues((prev) => ({ ...prev, [variableName]: text }));
+    });
+  }
 
-      {/* Placeholder Variables Inputs */}
-      {prompt.placeholder_variables &&
-        prompt.placeholder_variables.length > 0 && (
-          <div className="mb-4 space-y-3">
-            <h4 className="text-sm font-semibold text-gray-400 mb-1">
-              Variables:
-            </h4>
-            {prompt.placeholder_variables.map((variable) => (
-              <div
-                key={variable.id || variable.name}
-                className="flex flex-col sm:flex-row sm:items-center sm:gap-3"
-              >
-                <label
-                  htmlFor={`var-${prompt.id}-${variable.name}`}
-                  className="text-sm text-gray-300 mb-1 sm:mb-0 sm:w-1/3"
-                >
-                  {variable.name}:
-                </label>
-                {variable.type === "text" ? (
-                  <input
-                    type="text"
-                    id={`var-${prompt.id}-${variable.name}`}
-                    value={variableValues[variable.name] || ""}
-                    onChange={(e) =>
-                      handleVariableChange(variable.name, e.target.value)
-                    }
-                    className="w-full sm:w-2/3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-1 focus:ring-sky-500"
-                    placeholder={"Enter value"} // Removed defaultValue
-                  />
-                ) : variable.type === "option" &&
-                  variable.options &&
-                  variable.options.length > 0 ? (
-                  <select
-                    id={`var-${prompt.id}-${variable.name}`}
-                    value={variableValues[variable.name] || ""}
-                    onChange={(e) =>
-                      handleVariableChange(variable.name, e.target.value)
-                    }
-                    className="w-full sm:w-2/3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-1 focus:ring-sky-500"
-                  >
-                    <option value="">Select an option</option>
-                    {variable.options.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span className="text-sm text-gray-500">
-                    {" "}
-                    (No options defined or invalid type)
-                  </span>
-                )}
-              </div>
+  return (
+    <Card>
+      <CardContent>
+        <p className="whitespace-pre-wrap mb-4">
+          {getProcessedPromptTextToDisplay()}
+        </p>
+        {prompt.tags && prompt.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {prompt.tags.map((tag) => (
+              <Badge key={tag.id}>{tag.name}</Badge>
             ))}
           </div>
         )}
-
-      {prompt.tags && prompt.tags.length > 0 && (
-        <div className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-400 mb-1">Tags:</h4>
-          <div className="flex flex-wrap gap-2">
-            {prompt.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="px-3 py-1 bg-sky-600 text-white text-xs rounded-full font-medium"
-              >
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+        {/* Placeholder Variables Inputs */}
+        {prompt.placeholder_variables &&
+          prompt.placeholder_variables.length > 0 && (
+            <div className="mb-4 space-y-3">
+              {prompt.placeholder_variables.map((variable) => (
+                <div
+                  key={variable.id || variable.name}
+                  className="flex flex-col sm:flex-row sm:items-center sm:gap-3"
+                >
+                  {variable.type === "text" ? (
+                    <div className="flex flex-row gap-2 items-center w-full">
+                      <Input
+                        type="text"
+                        id={`var-${prompt.id}-${variable.name}`}
+                        value={variableValues[variable.name] || ""}
+                        onChange={(e) =>
+                          handleVariableChange(variable.name, e.target.value)
+                        }
+                        placeholder={variable.name}
+                      />
+                      <Button
+                        size="icon"
+                        onClick={() => handlePaste(variable.name)}
+                      >
+                        <ClipboardPasteIcon />
+                      </Button>
+                    </div>
+                  ) : variable.type === "option" &&
+                    variable.options &&
+                    variable.options.length > 0 ? (
+                    <Select
+                      value={variableValues[variable.name] || ""}
+                      onValueChange={(value) =>
+                        handleVariableChange(variable.name, value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={variable.name} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {variable.options.map((option) => (
+                          <SelectItem key={option} value={option || "-"}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span className="text-sm">
+                      {" "}
+                      (No options defined or invalid type)
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+      </CardContent>
       {/* Placeholder for edit/delete buttons and variable management */}
-      <div className="mt-4 flex justify-end gap-3">
-        <button
+      <CardFooter className="gap-2">
+        <Button
+          size="sm"
           onClick={handleCopy}
-          className={`text-sm py-1 px-3 rounded-md transition-colors ${
+          className={`${
             copied
               ? "bg-green-500 hover:bg-green-600"
               : "bg-blue-500 hover:bg-blue-600"
-          } text-white`}
+          }`}
         >
           {copied ? "Copied!" : "Copy"}
-        </button>
+        </Button>
         {/* Add Reset button */}
-        {prompt.placeholder_variables && prompt.placeholder_variables.length > 0 && (
-          <button
-            onClick={handleReset}
-            className="text-sm bg-gray-500 hover:bg-gray-600 text-white py-1 px-3 rounded-md transition-colors"
-          >
-            Reset
-          </button>
-        )}
+        {prompt.placeholder_variables &&
+          prompt.placeholder_variables.length > 0 && (
+            <Button size="sm" onClick={handleReset}>
+              Reset
+            </Button>
+          )}
         <Link href={`/edit-prompt/${prompt.id}`} passHref>
-          <button className="text-sm bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-md transition-colors">
+          <Button
+            size="sm"
+            className="text-sm bg-yellow-500 hover:bg-yellow-600 py-1 px-3 rounded-md transition-colors"
+          >
             Edit
-          </button>
+          </Button>
         </Link>
-        <button className="text-sm bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md transition-colors">
+        <Button
+          size="sm"
+          className="text-sm bg-red-500 hover:bg-red-600 py-1 px-3 rounded-md transition-colors"
+        >
           Delete
-        </button>
-      </div>
-    </div>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

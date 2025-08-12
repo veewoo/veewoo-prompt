@@ -137,62 +137,62 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
 
   return (
     <form onSubmit={handleSubmit} className="mb-12 p-6 bg-gray-800 rounded-lg shadow-xl space-y-6">
-      <h2 className="text-3xl font-semibold text-sky-400 mb-6">{isEditMode ? 'Edit Prompt' : 'Create New Prompt'}</h2>
+      <h2 className="text-3xl font-semibold mb-6">{isEditMode ? 'Edit Prompt' : 'Create New Prompt'}</h2>
       {error && (
-        <p className="text-red-400 bg-red-900 p-3 rounded-md">
+        <p className="bg-red-900 p-3 rounded-md">
           Error: {error instanceof Error ? error.message : 'An unknown error occurred'}
         </p>
       )}
-      {successMessage && <p className="text-green-400 bg-green-900 p-3 rounded-md">{successMessage}</p>}
+      {successMessage && <p className="bg-green-900 p-3 rounded-md">{successMessage}</p>}
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">Title</label>
+        <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
         <input
           type="text"
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
           placeholder="Enter prompt title"
           required
         />
       </div>
       <div>
-        <label htmlFor="promptText" className="block text-sm font-medium text-gray-300 mb-1">Prompt Text</label>
+        <label htmlFor="promptText" className="block text-sm font-medium mb-1">Prompt Text</label>
         <textarea
           id="promptText"
           value={promptText}
           onChange={(e) => setPromptText(e.target.value)}
           rows={6}
-          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
           placeholder="Enter your prompt content here. Use {{placeholder_name}} for variables."
           required
         />
       </div>
       <div>
-        <label htmlFor="tagNames" className="block text-sm font-medium text-gray-300 mb-1">Tags (comma-separated)</label>
+        <label htmlFor="tagNames" className="block text-sm font-medium mb-1">Tags (comma-separated)</label>
         <input
           type="text"
           id="tagNames"
           value={tagNames}
           onChange={(e) => setTagNames(e.target.value)}
-          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
+          className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
           placeholder="e.g., marketing, blog, social media"
         />
       </div>
 
       {/* Placeholder Variables Section */}
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-sky-500">Placeholder Variables</h3>
+        <h3 className="text-xl font-semibold">Placeholder Variables</h3>
         {placeholderVariables.map((variable, index) => (
           <div key={index} className="p-4 border border-gray-700 rounded-md space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-lg text-gray-300">Variable #{index + 1}</h4>
+              <h4 className="text-lg">Variable #{index + 1}</h4>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => movePlaceholderVariable(index, 'up')}
                   disabled={index === 0}
-                  className="text-gray-400 hover:text-gray-300 text-sm p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="hover:text-gray-300 text-sm p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Move up"
                 >
                   ↑
@@ -201,7 +201,7 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
                   type="button"
                   onClick={() => movePlaceholderVariable(index, 'down')}
                   disabled={index === placeholderVariables.length - 1}
-                  className="text-gray-400 hover:text-gray-300 text-sm p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="hover:text-gray-300 text-sm p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Move down"
                 >
                   ↓
@@ -209,31 +209,31 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
                 <button
                   type="button"
                   onClick={() => removePlaceholderVariable(index)}
-                  className="text-red-500 hover:text-red-400 text-sm"
+                  className="hover:text-red-400 text-sm"
                 >
                   Remove
                 </button>
               </div>
             </div>
             <div>
-              <label htmlFor={`var-name-${index}`} className="block text-sm font-medium text-gray-400 mb-1">Name</label>
+              <label htmlFor={`var-name-${index}`} className="block text-sm font-medium mb-1">Name</label>
               <input
                 type="text"
                 id={`var-name-${index}`}
                 value={variable.name}
                 onChange={(e) => updatePlaceholderVariable(index, 'name', e.target.value)}
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-1 focus:ring-sky-500"
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-1 focus:ring-sky-500"
                 placeholder="e.g., tone, product_name"
                 required
               />
             </div>
             <div>
-              <label htmlFor={`var-type-${index}`} className="block text-sm font-medium text-gray-400 mb-1">Type</label>
+              <label htmlFor={`var-type-${index}`} className="block text-sm font-medium mb-1">Type</label>
               <select
                 id={`var-type-${index}`}
                 value={variable.type}
                 onChange={(e) => updatePlaceholderVariable(index, 'type', e.target.value as 'text' | 'option')}
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-1 focus:ring-sky-500"
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-1 focus:ring-sky-500"
               >
                 <option value="text">Text</option>
                 <option value="option">Option</option>
@@ -241,20 +241,20 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
             </div>
             {variable.type === 'option' && (
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-400 mb-1">Options (comma-separated)</label>
+                <label className="block text-sm font-medium mb-1">Options (comma-separated)</label>
                 {variable.options?.map((option, optIndex) => (
                   <div key={optIndex} className="flex items-center gap-2">
                     <input
                       type="text"
                       value={option}
                       onChange={(e) => updateOptionForVariable(index, optIndex, e.target.value)}
-                      className="flex-grow p-2 bg-gray-600 border border-gray-500 rounded-md text-white focus:ring-1 focus:ring-sky-500"
+                      className="flex-grow p-2 bg-gray-600 border border-gray-500 rounded-md focus:ring-1 focus:ring-sky-500"
                       placeholder={`Option ${optIndex + 1}`}
                     />
                     <button
                       type="button"
                       onClick={() => removeOptionFromVariable(index, optIndex)}
-                      className="text-red-500 hover:text-red-400 text-xs p-1"
+                      className="hover:text-red-400 text-xs p-1"
                     >
                       Remove
                     </button>
@@ -263,7 +263,7 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
                 <button
                   type="button"
                   onClick={() => addOptionToVariable(index)}
-                  className="text-sky-500 hover:text-sky-400 text-sm"
+                  className="hover:text-sky-400 text-sm"
                 >
                   + Add Option
                 </button>
@@ -274,7 +274,7 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
         <button
           type="button"
           onClick={addPlaceholderVariable}
-          className="mt-2 bg-sky-700 hover:bg-sky-600 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors"
+          className="mt-2 bg-sky-700 hover:bg-sky-600 font-medium py-2 px-4 rounded-md text-sm transition-colors"
         >
           + Add Placeholder Variable
         </button>
@@ -283,11 +283,11 @@ export default function CreatePromptForm({ promptToEdit }: CreatePromptFormProps
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-sky-600 hover:bg-sky-700 font-bold py-3 px-6 rounded-lg text-lg shadow-md transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? (
           <span className="flex items-center justify-center">
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
