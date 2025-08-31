@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import CreatePromptForm from '@/app/components/CreatePromptForm';
-import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
+import CreatePromptForm from "@/app/components/CreatePromptForm";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 export default function CreatePromptPage() {
   const { user, loading: authLoading } = useAuth();
@@ -36,8 +37,8 @@ export default function CreatePromptPage() {
       <div className="container mx-auto">
         <header className="flex justify-between items-center mb-10">
           <h1 className="text-4xl font-bold">Create New Prompt</h1>
-          <Link href="/" className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out">
-            View My Prompts
+          <Link href={`/`} passHref>
+            <Button size="sm">View My Prompts</Button>
           </Link>
         </header>
         <CreatePromptForm />

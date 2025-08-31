@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import CreatePromptForm from '@/app/components/CreatePromptForm';
-import { useAuth } from '@/contexts/AuthContext';
-import { usePrompt } from '@/hooks/usePrompts';
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import CreatePromptForm from "@/app/components/CreatePromptForm";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePrompt } from "@/hooks/usePrompts";
+import { Button } from "@/components/ui/button";
 
 export default function EditPromptPage() {
   const { user, loading: authLoading } = useAuth();
@@ -13,22 +14,22 @@ export default function EditPromptPage() {
   const params = useParams();
   const promptId = params.id as string;
 
-  const { 
-    data: promptToEdit, 
-    isLoading: loadingPrompt, 
-    error 
+  const {
+    data: promptToEdit,
+    isLoading: loadingPrompt,
+    error,
   } = usePrompt(promptId);
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/'); // Redirect to sign-in or home if not authenticated
+      router.push("/"); // Redirect to sign-in or home if not authenticated
       return;
     }
   }, [authLoading, user, router]);
 
   useEffect(() => {
     if (promptToEdit && user && promptToEdit.user_id !== user.id) {
-      router.push('/'); // Redirect if user doesn't own this prompt
+      router.push("/"); // Redirect if user doesn't own this prompt
     }
   }, [promptToEdit, user, router]);
 
@@ -52,11 +53,8 @@ export default function EditPromptPage() {
       <div className="container mx-auto">
         <header className="flex justify-between items-center mb-10">
           <h1 className="text-4xl font-bold">Edit Prompt</h1>
-          <Link 
-            href="/" 
-            className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg text-md shadow-md transition duration-150 ease-in-out"
-          >
-            ← Back to Prompts
+          <Link href={`/`} passHref>
+            <Button size="sm">Go Back Home</Button>
           </Link>
         </header>
 
@@ -70,41 +68,40 @@ export default function EditPromptPage() {
         {error && (
           <div className="text-center py-20">
             <p className="text-xl mb-4">
-              {error instanceof Error ? error.message : 'Failed to load prompt'}
+              {error instanceof Error ? error.message : "Failed to load prompt"}
             </p>
-            <Link 
-              href="/" 
-              className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
-            >
-              Go Back Home
+            <Link href={`/`} passHref>
+              <Button size="sm">Go Back Home</Button>
             </Link>
           </div>
         )}
 
-        {!loadingPrompt && !error && promptToEdit && promptToEdit.user_id === user.id && (
-          <CreatePromptForm promptToEdit={promptToEdit} />
-        )}
+        {!loadingPrompt &&
+          !error &&
+          promptToEdit &&
+          promptToEdit.user_id === user.id && (
+            <CreatePromptForm promptToEdit={promptToEdit} />
+          )}
 
-        {!loadingPrompt && !error && promptToEdit && promptToEdit.user_id !== user.id && (
-          <div className="text-center py-20">
-            <p className="text-xl mb-4">You are not authorized to edit this prompt.</p>
-            <Link 
-              href="/" 
-              className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
-            >
-              Go Back Home
-            </Link>
-          </div>
-        )}
+        {!loadingPrompt &&
+          !error &&
+          promptToEdit &&
+          promptToEdit.user_id !== user.id && (
+            <div className="text-center py-20">
+              <p className="text-xl mb-4">
+                You are not authorized to edit this prompt.
+              </p>
+              <Link href={`/`} passHref>
+                <Button size="sm">Go Back Home</Button>
+              </Link>
+            </div>
+          )}
 
         {!loadingPrompt && !error && !promptToEdit && (
           <div className="text-center py-20">
             <p className="text-xl mb-4">Prompt not found.</p>
-            <Link 
-              href="/" 
-              className="bg-sky-600 hover:bg-sky-700 font-bold py-2 px-4 rounded-lg text-lg shadow-md transition duration-150 ease-in-out"
-            >
-              Go Back Home
+            <Link href={`/`} passHref>
+              <Button size="sm">Go Back Home</Button>
             </Link>
           </div>
         )}
