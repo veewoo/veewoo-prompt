@@ -22,6 +22,7 @@ export interface Prompt {
   id: string; // UUID
   user_id: string; // Foreign key to auth.users
   prompt_text: string; // Stores the prompt string with placeholders like {{variable_name}}
+  note?: string; // Rich text note for the prompt, nullable
   tags?: Tag[]; // Populated from prompt_tags junction table
   placeholder_variables?: PlaceholderVariable[]; // Populated from placeholder_variables table and placeholder_variable_options
   created_at?: string;

@@ -129,6 +129,7 @@ export async function getPromptById(promptId: string): Promise<Prompt | null> {
 // Create a new prompt using the client client
 interface CreatePromptArgs {
   prompt_text: string;
+  note?: string | null; // Added note field
   tagNames?: string[];
   placeholder_variables?: PlaceholderVariable[]; // Added placeholder_variables
 }
@@ -142,6 +143,7 @@ export async function createPrompt(args: CreatePromptArgs): Promise<Prompt> {
     .insert({
       user_id: user.id,
       prompt_text: args.prompt_text,
+      note: args.note, // Include note field
       // placeholder_variables are handled separately below
     })
     .select('*')
@@ -280,16 +282,17 @@ interface UpdatePromptArgs extends CreatePromptArgs { // Inherits placeholder_va
 export async function updatePrompt(args: UpdatePromptArgs): Promise<Prompt> {
   const user = await getUser();
 
-  // 1. Update the prompt details (prompt_text)
+  // 1. Update the prompt details (prompt_text and note)
   const { data: promptData, error: promptUpdateError } = await supabase
     .from('prompts')
     .update({
       prompt_text: args.prompt_text,
+      note: args.note, // Include note field
       updated_at: new Date().toISOString(),
     })
     .eq('id', args.id)
     .eq('user_id', user.id) // Ensure user owns the prompt
-    .select('id, prompt_text, user_id, created_at, updated_at')
+    .select('id, prompt_text, note, user_id, created_at, updated_at')
     .single();
 
   if (promptUpdateError || !promptData) {

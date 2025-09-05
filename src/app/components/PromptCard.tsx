@@ -14,7 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClipboardPasteIcon } from "lucide-react";
+import {
+  ClipboardPasteIcon,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+} from "lucide-react";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -22,6 +27,7 @@ interface PromptCardProps {
 
 export default function PromptCard({ prompt }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
+  const [showNote, setShowNote] = useState(false);
   const [variableValues, setVariableValues] = useState<Record<string, string>>(
     {}
   );
@@ -103,10 +109,41 @@ export default function PromptCard({ prompt }: PromptCardProps) {
           {getProcessedPromptTextToDisplay()}
         </p>
         {prompt.tags && prompt.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {prompt.tags.map((tag) => (
-              <Badge key={tag.id}>{tag.name}</Badge>
-            ))}
+          <div className="flex justify-between">
+            <div className="flex flex-wrap gap-2 mb-4">
+              {prompt.tags.map((tag) => (
+                <Badge key={tag.id}>{tag.name}</Badge>
+              ))}
+            </div>
+            {prompt.note && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowNote(!showNote)}
+                className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:text-gray-800"
+              >
+                <FileText className="h-4 w-4" />
+                {showNote ? "Hide Note" : "Show Note"}
+                {showNote ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+          </div>
+        )}
+        {/* Note Section */}
+        {prompt.note && (
+          <div className="mb-4">
+            {showNote && (
+              <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-md overflow-auto">
+                <div
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: prompt.note }}
+                />
+              </div>
+            )}
           </div>
         )}
         {/* Placeholder Variables Inputs */}
@@ -158,7 +195,6 @@ export default function PromptCard({ prompt }: PromptCardProps) {
                     </Select>
                   ) : (
                     <span className="text-sm">
-                      {" "}
                       (No options defined or invalid type)
                     </span>
                   )}

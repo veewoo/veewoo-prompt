@@ -71,8 +71,7 @@ export default function PromptsPage() {
               <p className="bg-red-900 p-3 rounded-md my-4">{error.message}</p>
             )}
 
-            <section className="mb-12">
-              <h2 className="text-2xl font-semibold mb-4">Filter by Tags</h2>
+            <section className="mb-12 flex gap-4">
               {tags.length === 0 && !loadingData && (
                 <p className="">No tags available.</p>
               )}
@@ -82,7 +81,7 @@ export default function PromptsPage() {
                     size="sm"
                     key={tag.id}
                     onClick={() => handleTagToggle(tag.id)}
-                    className={`
+                    className={`hover:bg-sky-600
                       ${
                         selectedTags.includes(tag.id)
                           ? "bg-sky-600"
@@ -110,7 +109,7 @@ export default function PromptsPage() {
                 </p>
               )}
               {!loadingData && filteredPrompts.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {filteredPrompts.map((prompt) => (
                     <PromptCard key={prompt.id} prompt={prompt} />
                   ))}

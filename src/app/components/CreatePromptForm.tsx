@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { ChevronUp, ChevronDown, X, Plus, Loader2 } from "lucide-react";
 
 interface CreatePromptFormProps {
@@ -26,6 +27,7 @@ export default function CreatePromptForm({
   promptToEdit,
 }: CreatePromptFormProps) {
   const [promptText, setPromptText] = useState("");
+  const [note, setNote] = useState(""); // Rich text note
   const [tagNames, setTagNames] = useState(""); // Comma-separated tag names
   const [placeholderVariables, setPlaceholderVariables] = useState<
     PlaceholderVariable[]
@@ -44,12 +46,14 @@ export default function CreatePromptForm({
   useEffect(() => {
     if (isEditMode && promptToEdit) {
       setPromptText(promptToEdit.prompt_text);
+      setNote(promptToEdit.note || ""); // Set note in edit mode
       // Assuming tags are stored as an array of objects with a 'name' property
       setTagNames(promptToEdit.tags?.map((tag) => tag.name).join(", ") || "");
       setPlaceholderVariables(promptToEdit.placeholder_variables || []); // Set placeholder variables in edit mode
     } else {
       // Reset form if not in edit mode or promptToEdit is cleared
       setPromptText("");
+      setNote(""); // Reset note
       setTagNames("");
       setPlaceholderVariables([]); // Reset placeholder variables
     }
@@ -164,9 +168,10 @@ export default function CreatePromptForm({
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag !== "");
-      // Include placeholderVariables in the data sent to the server action
+      // Include placeholderVariables and note in the data sent to the server action
       const promptData = {
         prompt_text: promptText,
+        note: note || null, // Send null if note is empty
         tagNames: tagsArray,
         placeholder_variables: placeholderVariables,
       };
@@ -180,6 +185,7 @@ export default function CreatePromptForm({
         await createPromptMutation.mutateAsync(promptData);
         // Reset form after successful creation
         setPromptText("");
+        setNote("");
         setTagNames("");
         setPlaceholderVariables([]);
       }
@@ -223,6 +229,15 @@ export default function CreatePromptForm({
               rows={6}
               placeholder="Enter your prompt content here. Use {{placeholder_name}} for variables."
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="note">Note (optional)</Label>
+            <RichTextEditor
+              content={note}
+              onChange={setNote}
+              placeholder="Add an optional note about this prompt..."
+              className="min-h-[120px]"
             />
           </div>
           <div className="space-y-2">
