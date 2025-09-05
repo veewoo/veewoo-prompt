@@ -111,7 +111,6 @@ export type Database = {
           created_at: string | null
           id: string
           prompt_text: string
-          title: string
           updated_at: string | null
           user_id: string
         }
@@ -119,7 +118,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           prompt_text: string
-          title: string
           updated_at?: string | null
           user_id: string
         }
@@ -127,7 +125,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           prompt_text?: string
-          title?: string
           updated_at?: string | null
           user_id?: string
         }

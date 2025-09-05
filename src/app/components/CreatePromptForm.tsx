@@ -25,7 +25,6 @@ interface CreatePromptFormProps {
 export default function CreatePromptForm({
   promptToEdit,
 }: CreatePromptFormProps) {
-  const [title, setTitle] = useState("");
   const [promptText, setPromptText] = useState("");
   const [tagNames, setTagNames] = useState(""); // Comma-separated tag names
   const [placeholderVariables, setPlaceholderVariables] = useState<
@@ -44,14 +43,12 @@ export default function CreatePromptForm({
 
   useEffect(() => {
     if (isEditMode && promptToEdit) {
-      setTitle(promptToEdit.title);
       setPromptText(promptToEdit.prompt_text);
       // Assuming tags are stored as an array of objects with a 'name' property
       setTagNames(promptToEdit.tags?.map((tag) => tag.name).join(", ") || "");
       setPlaceholderVariables(promptToEdit.placeholder_variables || []); // Set placeholder variables in edit mode
     } else {
       // Reset form if not in edit mode or promptToEdit is cleared
-      setTitle("");
       setPromptText("");
       setTagNames("");
       setPlaceholderVariables([]); // Reset placeholder variables
@@ -158,7 +155,7 @@ export default function CreatePromptForm({
     e.preventDefault();
     setSuccessMessage(null);
 
-    if (!title.trim() || !promptText.trim()) {
+    if (!promptText.trim()) {
       return; // Form validation will handle this
     }
 
@@ -169,7 +166,6 @@ export default function CreatePromptForm({
         .filter((tag) => tag !== "");
       // Include placeholderVariables in the data sent to the server action
       const promptData = {
-        title,
         prompt_text: promptText,
         tagNames: tagsArray,
         placeholder_variables: placeholderVariables,
@@ -183,7 +179,6 @@ export default function CreatePromptForm({
       } else {
         await createPromptMutation.mutateAsync(promptData);
         // Reset form after successful creation
-        setTitle("");
         setPromptText("");
         setTagNames("");
         setPlaceholderVariables([]);
@@ -219,17 +214,6 @@ export default function CreatePromptForm({
               {successMessage}
             </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter prompt title"
-              required
-            />
-          </div>
           <div className="space-y-2">
             <Label htmlFor="promptText">Prompt Text</Label>
             <Textarea
