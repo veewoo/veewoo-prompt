@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import { Button } from './button'
 import { Bold, Italic, List, ListOrdered, Quote, Undo, Redo, Link as LinkIcon, Code } from 'lucide-react'
+import { useEffect } from 'react'
 
 interface RichTextEditorProps {
   content: string
@@ -35,6 +36,13 @@ export function RichTextEditor({ content, onChange, placeholder, className = "" 
       },
     },
   })
+
+  // Update editor content when the content prop changes
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content)
+    }
+  }, [editor, content])
 
   if (!editor) {
     return null
