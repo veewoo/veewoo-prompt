@@ -208,11 +208,10 @@ export default function PromptCard({ prompt }: PromptCardProps) {
         <Button
           size="sm"
           onClick={handleCopy}
-          className={`${
-            copied
+          className={`${copied
               ? "bg-green-500 hover:bg-green-600"
               : "bg-blue-500 hover:bg-blue-600"
-          }`}
+            }`}
         >
           {copied ? "Copied!" : "Copy"}
         </Button>

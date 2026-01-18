@@ -1,6 +1,6 @@
 "use client";
 
-import CreatePromptForm from "@/app/components/CreatePromptForm";
+import CreatePromptForm from "@/app/_components/CreatePromptForm";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";

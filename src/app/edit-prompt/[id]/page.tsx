@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import CreatePromptForm from "@/app/components/CreatePromptForm";
+import CreatePromptForm from "@/app/_components/CreatePromptForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrompt } from "@/hooks/usePrompts";
 import { Button } from "@/components/ui/button";

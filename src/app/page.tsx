@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useInitialData } from "@/hooks/usePrompts";
-import PromptCard from "@/app/components/PromptCard";
+import PromptCard from "@/app/_components/PromptCard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -40,20 +40,21 @@ export default function PromptsPage() {
     <main className="min-h-screen p-4 md:p-8">
       <div className="container mx-auto">
         <header className="flex flex-wrap justify-between items-center mb-10">
-          <h1 className="text-4xl font-bold">Your Prompts</h1>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-4 w-full">
             {!user && (
               <Button onClick={signInWithGoogle}>Sign in with Google</Button>
             )}
             {user && (
               <>
-                <span className="">Welcome, {user.email}!</span>
-                <Button asChild>
-                  <Link href="/create-prompt">Create New Prompt</Link>
-                </Button>
-                <Button variant="destructive" onClick={signOut}>
-                  Sign Out
-                </Button>
+                <div>Welcome, {user.email}!</div>
+                <div className="flex items-center gap-4 ml-auto" >
+                  <Button asChild>
+                    <Link href="/create-prompt">Create New Prompt</Link>
+                  </Button>
+                  <Button variant="destructive" onClick={signOut}>
+                    Sign Out
+                  </Button>
+                </div>
               </>
             )}
           </div>
@@ -82,10 +83,9 @@ export default function PromptsPage() {
                     key={tag.id}
                     onClick={() => handleTagToggle(tag.id)}
                     className={`hover:bg-sky-600
-                      ${
-                        selectedTags.includes(tag.id)
-                          ? "bg-sky-600"
-                          : "bg-gray-700 hover:bg-gray-600"
+                      ${selectedTags.includes(tag.id)
+                        ? "bg-sky-600"
+                        : "bg-gray-700 hover:bg-gray-600"
                       }`}
                   >
                     {tag.name}
