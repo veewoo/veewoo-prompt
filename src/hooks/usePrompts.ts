@@ -5,7 +5,7 @@ import {
   createPrompt, 
   updatePrompt, 
   getAllTags 
-} from '@/app/actions/promptActions';
+} from '@/hooks/promptActions';
 
 // Query keys
 export const queryKeys = {
