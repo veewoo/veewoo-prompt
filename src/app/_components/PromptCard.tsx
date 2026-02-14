@@ -20,6 +20,7 @@ import {
   ChevronUp,
   FileText,
 } from "lucide-react";
+import { useDeleteSnippet } from "@/hooks/useDeleteSnippet";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -31,6 +32,9 @@ export default function PromptCard({ prompt }: PromptCardProps) {
   const [variableValues, setVariableValues] = useState<Record<string, string>>(
     {}
   );
+  
+  // Delete snippet hook
+  const deleteSnippet = useDeleteSnippet();
 
   // Initialize variableValues with defaultValues from prompt
   useEffect(() => {
@@ -101,6 +105,21 @@ export default function PromptCard({ prompt }: PromptCardProps) {
       setVariableValues((prev) => ({ ...prev, [variableName]: text }));
     });
   }
+
+  // Handle delete with confirmation
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this prompt?")) {
+      deleteSnippet.mutate(prompt.id, {
+        onSuccess: () => {
+          console.log("Snippet deleted successfully");
+        },
+        onError: (error) => {
+          console.error("Failed to delete snippet:", error);
+          alert("Failed to delete snippet. Please try again.");
+        },
+      });
+    }
+  };
 
   return (
     <Card>
@@ -232,9 +251,11 @@ export default function PromptCard({ prompt }: PromptCardProps) {
         </Link>
         <Button
           size="sm"
-          className="text-sm bg-red-500 hover:bg-red-600 py-1 px-3 rounded-md transition-colors"
+          onClick={handleDelete}
+          disabled={deleteSnippet.isPending}
+          className="text-sm bg-red-500 hover:bg-red-600 py-1 px-3 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Delete
+          {deleteSnippet.isPending ? "Deleting..." : "Delete"}
         </Button>
       </CardFooter>
     </Card>
